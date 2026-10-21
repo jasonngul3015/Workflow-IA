@@ -1,0 +1,15 @@
+#!/bin/sh
+# Refuse tout envoi direct vers main : passer par une branche et une PR (CLAUDE.md, section Workflow).
+# Remplace la protection de branche de GitHub, indisponible pour un depot prive sans GitHub Pro.
+# Activation, une fois par clone : git config core.hooksPath .githooks
+
+# Git fournit une ligne par reference envoyee : ref locale, sha local, ref distante, sha distant
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Seule la branche main est protegee ; les etiquettes v* et les autres branches passent
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "pre-push : envoi direct vers main refusé. Pousser une branche et ouvrir une PR." >&2
+    exit 1
+  fi
+done
+
+exit 0

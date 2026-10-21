@@ -1,0 +1,40 @@
+#!/bin/sh
+# Verifie le message de commit (regles de CLAUDE.md, section Workflow).
+# Activation, une fois par clone : git config core.hooksPath .githooks
+
+# Fichier du message, fourni par Git
+msg_file="$1"
+# Message sans les lignes de commentaire de Git
+msg=$(grep -v '^#' "$msg_file")
+# Premiere ligne : le sujet
+subject=$(printf '%s\n' "$msg" | head -n 1)
+
+# Fusions, annulations et corrections a fusionner : generees par Git, acceptees telles quelles
+case "$subject" in
+  "Merge "*|"Revert "*|"fixup! "*|"squash! "*) exit 0 ;;
+esac
+
+# Refus avec explication
+fail() {
+  echo "commit-msg : $1" >&2
+  echo "Format attendu : type(zone): sujet  (types : test, feat, fix, docs, chore)" >&2
+  exit 1
+}
+
+# Format type(zone): sujet, zone facultative
+printf '%s\n' "$subject" | grep -Eq '^(test|feat|fix|docs|chore)(\([a-z0-9-]+\))?: [^ ]' \
+  || fail "sujet mal forme : « $subject »"
+
+# Longueur du sujet (caracteres, pas octets)
+len=$(printf '%s' "$subject" | wc -m | tr -d ' ')
+[ "$len" -le 72 ] || fail "sujet de $len caracteres (72 au plus)"
+
+# Ligne vide entre le sujet et le corps
+second=$(printf '%s\n' "$msg" | sed -n '2p')
+[ -z "$second" ] || fail "laisser une ligne vide apres le sujet"
+
+# Aucune attribution : l'utilisateur est le seul auteur (CLAUDE.md, le nom du fichier reste permis)
+printf '%s\n' "$msg" | grep -qi 'co-authored-by' && fail "ligne Co-Authored-By interdite"
+printf '%s\n' "$msg" | sed 's/CLAUDE\.md//g' | grep -qi 'claude' && fail "mention de Claude interdite"
+
+exit 0
