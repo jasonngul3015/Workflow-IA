@@ -42,6 +42,15 @@ function Test-IsProductionCode([string]$path) {
     return (Test-AnyMatch $path $cfg.ProductionPatterns)
 }
 
+# 0. Configuration : un motif sans fichier correspondant desactive un controle sans le dire
+$repoFiles = @(& git ls-files) + @(& git ls-files --others --exclude-standard)
+foreach ($key in 'TestPatterns', 'ProductionPatterns') {
+    foreach ($p in @($cfg[$key])) {
+        if (-not $p) { continue }
+        if (@($repoFiles -match $p).Count -eq 0) { $notices.Add("Config : motif $key sans fichier correspondant : $p") }
+    }
+}
+
 # 1. Commits de la branche : tests d'abord, jamais de test dans un commit feat ou fix
 $seenTestCommit = $false
 $commits = @(& git log --reverse --format='%H %s' "$mergeBase..HEAD")
@@ -71,6 +80,9 @@ if ($seenTestCommit) {
 }
 
 # 3. Migrations (si le projet en a) : jamais d'ancienne modifiee, numeros uniques et plus grands que ceux de main
+if ($cfg.Migrations -and -not (Test-Path $cfg.Migrations.Dir)) {
+    $notices.Add("Config : dossier de migrations introuvable : $($cfg.Migrations.Dir)")
+}
 if ($cfg.Migrations -and (Test-Path $cfg.Migrations.Dir)) {
     $migrationDir = $cfg.Migrations.Dir
     $namePattern = $cfg.Migrations.NamePattern
@@ -100,7 +112,8 @@ if ($cfg.Migrations -and (Test-Path $cfg.Migrations.Dir)) {
 
 # 4. Regles de code : motifs interdits par dossier (dependances entre couches, horloge injectee...)
 foreach ($rule in @($cfg.CodeRules)) {
-    if (-not $rule -or -not (Test-Path $rule.Path)) { continue }
+    if (-not $rule) { continue }
+    if (-not (Test-Path $rule.Path)) { $notices.Add("Config : dossier introuvable pour la regle '$($rule.Message)' : $($rule.Path)"); continue }
     foreach ($hit in Get-ChildItem $rule.Path -Recurse -File -Filter $rule.Filter | Select-String -Pattern $rule.Pattern) {
         # Lignes ou fichiers autorises malgre le motif
         if ($rule.AllowLine -and $hit.Line -match $rule.AllowLine) { continue }

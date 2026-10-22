@@ -30,7 +30,7 @@ agents en parallèle, coordonnés par un modérateur qui tient les verrous des s
 - `scripts/verifier-tache.ps1` (aussi lancé par la CI, réglé par `scripts/verifier-tache.config.psd1`) vérifie :
   tests d'abord et jamais modifiés dans un commit `feat`/`fix`, migrations (aucune ancienne modifiée, numéros uniques
   et croissants), règles de code (dépendances entre couches, horloge injectée…) ; il signale les changements de
-  stack et l'audit manquant.
+  stack, l'audit manquant et les réglages qui ne correspondent à aucun fichier (contrôle désactivé sans le dire).
 - Commits : `type(zone): sujet` (types `test`, `feat`, `fix`, `docs`, `chore`), en français à l'impératif, sujet de
   72 caractères au plus, ligne vide, corps qui explique pourquoi. Fichiers ajoutés un par un (jamais `git add -A` ni
   `git add .`), un commit par étape logique, jamais de test modifié dans le commit du code. Vérifié par le hook
