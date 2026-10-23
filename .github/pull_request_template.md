@@ -11,7 +11,7 @@
 
 <!-- Si chantier : lien vers chantier.md et taches/Txxx.md dans le dernier suivi sauvegardé.
      Rapporter les décisions, la base et le SHA relus, les défauts corrigés, les vérifications et leurs limites.
-     Garder les identités et noms des IA dans le suivi local, sans attribution dans cette PR. -->
+     Attribution selon le réglage du projet (par défaut : rôles et outils dans le suivi, pas dans la PR). -->
 
 ## Tests écrits d'abord
 
@@ -29,13 +29,13 @@
 
 ## Audit
 
-<!-- Lien vers docs/projet/audits/AAAA-MM-JJ-<branche>.md et, en une ligne, ce qu'il signale. -->
+<!-- Lien vers <audits>/AAAA-MM-JJ-<branche>.md et, en une ligne, ce qu'il signale. -->
 
 ## Terminé ?
 
 - [ ] Fiche validée avant le code (commit `test(...)` en premier ; algorithmes validés aussi si tâche sensible ; documentation seule : vérifications adaptées et éléments sans objet expliqués)
-- [ ] `./scripts/verifier-tache.ps1` sans échec, chaque « à valider » traité
-- [ ] Le code suit l'algorithme (commentaires `// Algorithme :` identiques à la section ci-dessus)
+- [ ] Vérificateur sans échec, chaque « à valider » traité
+- [ ] Le code suit l'algorithme (commentaires `Algorithme :` identiques à la section ci-dessus)
 - [ ] Les tests mordent (une casse volontaire les fait échouer)
 - [ ] Suite de tests complète et build passent
 - [ ] Tests d'intégration lancés si la base change, de bout en bout si un parcours change

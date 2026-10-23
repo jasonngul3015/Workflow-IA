@@ -8,13 +8,13 @@
 - Stack : inchangée | <présentation et validation liées>
 - Parallélisation : <n> tâches indépendantes ; participants : <1 ou 2 et rôle>
 - Phase : socle | parallèle | séquentielle ; dépendances : <IDs et conditions de livraison>
-- Responsable : Patrick | Fanny ; outil et session : <...>
+- Responsable : IA principale | IA secondaire ; outil et session : <...>
 - Branche / worktree : <branche> / <chemin absolu>
 - Base et SHA de départ : <référence> / <SHA>
 - Écritures autorisées (code) : <fichiers/dossiers>
 - Écritures autorisées (suivi canonique) : <cette fiche et son fichier de messages>
 - Lectures critiques : <fichiers et versions>
-- Ressources / jetons : <attribution par Patrick ou aucun>
+- Ressources / jetons : <attribution par l'IA principale ou aucun>
 
 | Situation | Résultat attendu / erreur | Test ou vérification documentaire |
 | --- | --- | --- |
@@ -33,7 +33,7 @@
 - État : à cadrer | à valider | prête | en cours | bloquée | à relire | PR prête | fusionnée | annulée
 - Étape : fiche | tests rouges | algorithme | code | vérifications | revue | CI | audit | fusion
 - Dernière mise à jour : <date avec fuseau>
-- Dernier message de l'autre rôle traité : <P... / F... ou aucun>
+- Dernier message de l'autre rôle traité : <P... / S... ou aucun>
 - Réalisé : <faits>
 - Reste à faire : <actions>
 - Modifications non commitées : <liste ou aucune, à confirmer par git status>
@@ -66,7 +66,7 @@
 ## Audit et historique
 
 - Audit : <chemin ou à écrire>
-- Propositions de documentation centrale : <à transmettre à Patrick>
+- Propositions de documentation centrale : <à transmettre à l'IA principale>
 
 | Date | Responsable sortant / entrant | Arrêt confirmé | État réel vérifié | Message / prochaine action |
 | --- | --- | --- | --- | --- |
