@@ -1,103 +1,71 @@
 # Workflow-IA
 
-Workflow générique pour **deux IA choisies par l'utilisateur**, au service d'un développeur seul. L'utilisateur
-décide du travail et de la fusion. Les IA suivent les mêmes règles : fiche validée, tests d'abord, algorithmes,
-vérification, revue, CI et audit.
+Un workflow de développement assisté par IA pour un développeur seul, **indépendant des outils** : il fonctionne
+avec n'importe quelle IA capable de lire et modifier les fichiers d'un projet, seule ou à deux.
 
-## Patrick et Fanny
+L'IA écrit le code ; le développeur décide du **quoi** (la fiche) et de **la fusion**. Entre les deux, l'IA avance
+seule, tenue par des garde-fous vérifiables : tests écrits d'abord, vérificateur, hooks Git, revue et CI.
 
-L'IA qui crée le chantier devient **Patrick** ; l'autre rejoint comme **Fanny**. Les rôles ne dépendent pas des outils.
-**Seul Patrick communique avec l'utilisateur** : il découpe, attribue, recueille les validations et présente les PR.
-Les deux IA **codent en parallèle**, chacune dans le worktree de sa tâche, et ne s'arrêtent qu'aux décisions humaines.
-Le développeur réveille les sessions ; aucun programme de relais n'est nécessaire.
-Pas à pas : [mode d'emploi](docs/workflow/mode-emploi-duo.md).
+## Comment c'est organisé
 
-## Démarrer et reprendre
+| Couche | Où | Qui l'adapte |
+| --- | --- | --- |
+| **Principes** : ce qui fait le workflow, commun à tous | [WORKFLOW.md](WORKFLOW.md), section « Principes » | Personne, sauf décision explicite |
+| **Réglages** : langue, commits, forge, commandes, IA utilisées… | [WORKFLOW.md](WORKFLOW.md), section « Réglages du projet » | Chaque développeur |
+| **Procédures** : déroulé pas à pas, qui cite les réglages | [docs/workflow/](docs/workflow/) | Personne en général |
+| **Garde-fous** : hooks, vérificateur, modèle de PR | [.githooks/](.githooks/), [scripts/](scripts/), [.github/](.github/) | Réglages en tête de fichier |
+| **Adaptateurs d'outils** : fichier d'instructions, permissions, raccourcis | [adaptateurs/](adaptateurs/), un dossier par outil | Chaque développeur copie celui de son outil |
 
-Dans l'outil choisi comme principal :
+## Démarrer
 
-```text
-Crée le chantier « invitations ». Tu es Patrick. Suis WORKFLOW.md et docs/workflow/chantier.md.
-```
+1. Copier les fichiers et remplir les réglages : [guide d'adaptation](docs/workflow/adapter.md).
+2. Une tâche, avec n'importe quelle IA :
 
-Dans l'autre outil, une fois le suivi créé :
+   ```text
+   Lis WORKFLOW.md puis suis docs/workflow/tache.md pour cette tâche : <description>.
+   ```
 
-```text
-Tu es Fanny. Rejoins le chantier dans <chemin absolu du dossier de suivi>.
-Lis WORKFLOW.md, docs/workflow/duo.md, chantier.md et de-patrick.txt, puis traite les demandes autorisées.
-```
-
-Pour réveiller une session (chacune termine par « À réveiller : … ») :
-
-```text
-Reprends ton rôle dans <chemin absolu du dossier de suivi> : lis les nouveaux messages et poursuis le travail autorisé.
-```
-
-Pour une tâche seule : « Lis WORKFLOW.md puis suis docs/workflow/tache.md pour cette tâche : <description>. »
-
-## Mémoire du chantier
-
-```text
-docs/projet/chantiers/<nom>/
-  chantier.md      objectifs, limites, identités, validations, index et réservations (Patrick)
-  de-patrick.txt   messages de Patrick à Fanny
-  de-fanny.txt     messages de Fanny à Patrick
-  taches/T001.md   périmètre, état, preuves, blocages et prochaine action (responsable de la tâche)
-```
-
-Chaque fichier a **un seul rédacteur** : les deux IA peuvent donc écrire en même temps sans tour de parole. Les
-messages sont courts et ajoutés en fin de fichier ; chacun ne relit que ceux qu'il n'a pas encore traités. Une
-session sans historique du chat lit ces fichiers puis vérifie branche, commits et diff avant de reprendre.
-Patrick sauvegarde le suivi dans sa branche/PR de documentation ; sur une autre machine, récupérer ce suivi et
-les branches, puis ajuster les chemins.
+3. Plusieurs tâches avec deux IA qui codent en parallèle : [mode d'emploi du duo](docs/workflow/mode-emploi-duo.md).
 
 ## Le cycle d'une tâche
 
 ```text
-Fiche ---------------- ARRÊT : l'utilisateur valide, par Patrick dans un chantier
-Tests rouges -> commit test(...)
-[sensible : ARRÊT algorithmes + tests rouges, par Patrick]
-Algorithme -> code sans modifier les tests commités
-Casse volontaire -> verifier-tache.ps1 -> revue (par l'autre IA dans un chantier)
-Commit feat|fix -> push -> PR -> CI verte -> audit
-Fusion --------------- ARRÊT : demande explicite de l'utilisateur
+Fiche ---------------- ARRÊT : le développeur valide
+Tests rouges -> commit des tests seuls
+[sensible : ARRÊT algorithmes + tests rouges]
+Algorithme -> code qui le suit, sans modifier les tests commités
+Casse volontaire -> vérificateur -> revue
+Commit -> push -> PR -> CI verte -> audit court
+Fusion --------------- ARRÊT : le développeur décide
 ```
 
-Niveaux : trivial (déclaré par l'utilisateur, fiche courte), standard, sensible (authentification, droits,
-données personnelles, schéma, déploiement et zones sensibles du projet). Arrêts imprévus : changement de stack,
+Niveaux : trivial (fiche en 3 lignes), standard, sensible (un arrêt de plus). Arrêts imprévus : changement de stack,
 test commité suspect, algorithme impossible, périmètre ambigu ou trop grand, vérifications rouges après deux
-corrections. Une tâche purement documentaire remplace les tests par les vérifications prévues dans sa fiche.
+corrections.
+
+## Deux IA en parallèle
+
+L'IA qui crée le chantier est l'**IA principale** et la seule à parler au développeur ; l'autre est l'**IA
+secondaire**. Chacune code sa tâche dans son worktree, en même temps. Elles communiquent par fichiers texte dont
+chacun n'a qu'un seul rédacteur, et le développeur réveille la session qui doit lire. Tout l'état est conservé dans
+un dossier de suivi : une session neuve reprend sans l'historique du chat.
 
 ## Contenu
 
 | Fichier | Rôle |
 | --- | --- |
-| [WORKFLOW.md](WORKFLOW.md) | Règles communes et réglages du projet |
-| [Procédure tâche](docs/workflow/tache.md) | Fiche, tests, code, PR, audit et arrêts |
-| [Procédure chantier](docs/workflow/chantier.md) | Découpage, répartition parallèle, réservations et livraison |
-| [Protocole Patrick/Fanny](docs/workflow/duo.md) | Propriété des fichiers, messages, reprise et revue |
-| [Mode d'emploi du duo](docs/workflow/mode-emploi-duo.md) | Ce que fait le développeur : démarrer, réveiller, valider, reprendre |
-| [Modèle chantier](docs/workflow/modeles/chantier.md), [tâche](docs/workflow/modeles/tache.md), [messages](docs/workflow/modeles/messages.txt) | Fichiers à copier pour chaque chantier |
-| [.claude/settings.json](.claude/settings.json) | Permissions Claude Code : commit, push, PR, fusion soumis à accord ; `git add -A`, `--no-verify`, `--force` interdits |
-| [.claude/skills/](.claude/skills/) | Raccourcis `/tache` et `/chantier` facultatifs, qui renvoient aux procédures |
-| [.githooks/commit-msg](.githooks/commit-msg), [.githooks/pre-push](.githooks/pre-push) | Format des commits et refus des push directs vers main |
-| [Vérificateur](scripts/verifier-tache.ps1), [configuration](scripts/verifier-tache.config.psd1) | Contrôles communs et réglages à adapter |
-| [Modèle de PR](.github/pull_request_template.md), [audit](docs/projet/audits/README.md) | Preuves, limites et bilan |
+| [WORKFLOW.md](WORKFLOW.md) | Principes et réglages : point d'entrée de toute IA |
+| [docs/workflow/adapter.md](docs/workflow/adapter.md) | Adapter à son projet, ses IA, sa forge, ses conventions |
+| [docs/workflow/tache.md](docs/workflow/tache.md) | Procédure d'une tâche : fiche, tests, code, PR, audit |
+| [docs/workflow/chantier.md](docs/workflow/chantier.md) | Chantier à deux IA : découpage, répartition, réservations, livraison |
+| [docs/workflow/duo.md](docs/workflow/duo.md) | Communication entre IA : propriété des fichiers, messages, reprise, revue |
+| [docs/workflow/mode-emploi-duo.md](docs/workflow/mode-emploi-duo.md) | Ce que fait le développeur pendant un chantier |
+| [docs/workflow/modeles/](docs/workflow/modeles/) | Modèles : chantier, fiche de tâche, messages, audit |
+| [.githooks/](.githooks/) | Format des commits, attribution, protection de la branche principale (réglages en tête) |
+| [scripts/verifier-tache.ps1](scripts/verifier-tache.ps1) | Contrôles mécaniques, réglés par [verifier-tache.config.psd1](scripts/verifier-tache.config.psd1) (exemple Java/TypeScript) |
+| [.github/pull_request_template.md](.github/pull_request_template.md) | Modèle de PR |
+| [adaptateurs/](adaptateurs/) | Branchement des outils : Claude Code, outils lisant `AGENTS.md` ; à copier à la racine du projet |
+| [docs/projet/](docs/projet/) | Suivi propre à ce dépôt (à ne pas copier) |
 
-## Installer dans un projet
-
-1. Copier `WORKFLOW.md`, `docs/workflow/`, les hooks, scripts et modèles de PR/audit aux mêmes chemins, sans
-   écraser les consignes déjà présentes dans le projet sans les examiner. Avec Claude Code, copier aussi
-   `.claude/settings.json` (garde-fous de permissions) et, si souhaité, `.claude/skills/`. Pour un autre outil,
-   reproduire ces interdictions dans ses propres réglages de permissions.
-2. Remplir « Workflow : réglages du projet » dans `WORKFLOW.md` et remplacer la note propre à ce dépôt de modèles.
-3. Adapter `scripts/verifier-tache.config.psd1` : commandes de test dans les règles, motifs, couches, migrations,
-   stack et liste des choses à faire. La configuration fournie est un exemple Java/TypeScript.
-4. Activer les hooks une fois par clone : `git config core.hooksPath .githooks`. Sous Linux/macOS :
-   `chmod +x .githooks/*`. Vérifier leur activation dans chaque environnement utilisé.
-5. Dans la CI du projet, exécuter `./scripts/verifier-tache.ps1 -Base origin/main` pour chaque PR avec l'historique
-   Git nécessaire. Aucune CI n'est installée automatiquement par ces documents.
-6. Choisir Patrick, créer le chantier, puis réveiller Fanny avec le chemin du dossier de suivi.
-
-Prérequis pour le cycle complet : Git, GitHub CLI (`gh`), PowerShell et deux IA capables de lire et modifier les
-fichiers du projet. Les garde-fous de l'environnement de chaque outil restent applicables.
+Prérequis : Git ; pour le cycle complet, une forge avec CLI (GitHub et `gh` par défaut) et PowerShell (5.1 ou
+`pwsh`) pour le vérificateur. Les garde-fous de chaque outil restent applicables.

@@ -1,9 +1,9 @@
-MESSAGES DE <Patrick ou Fanny> - CHANTIER <nom>
-Copier ce modèle deux fois dans le dossier canonique : de-patrick.txt et de-fanny.txt.
+MESSAGES DE L'IA <principale ou secondaire> - CHANTIER <nom>
+Copier ce modèle deux fois dans le dossier de suivi : de-principale.txt et de-secondaire.txt.
 Seul rédacteur : le rôle nommé ci-dessus. Ajouter à la fin uniquement ; ne jamais modifier un message.
 Règles : docs/workflow/duo.md, section « Messages ».
 
-FORMAT (ID P001… pour Patrick, F001… pour Fanny) :
+FORMAT (ID P001… pour l'IA principale, S001… pour l'IA secondaire) :
 <ID> | <date avec fuseau> | <Txxx ou CHANTIER> | <DEMANDE / QUESTION / RESULTAT / BLOQUEE / REFUSEE / VALIDATION> | re <ID ou aucun> | SHA <SHA ou sans objet>
 <contenu court ; détails dans la fiche ; validation Vxxx si pertinente ; prochaine action>
 FIN <ID>
