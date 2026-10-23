@@ -1,13 +1,16 @@
 #!/bin/sh
-# Refuse tout envoi direct vers main : passer par une branche et une PR (CLAUDE.md, section Workflow).
-# Remplace la protection de branche de GitHub, indisponible pour un depot prive sans GitHub Pro.
+# Refuse tout envoi direct vers la branche principale : passer par une branche et une PR (WORKFLOW.md).
+# Utile quand la forge ne propose pas de protection de branche (par exemple un depot prive sans offre payante).
 # Activation, une fois par clone : git config core.hooksPath .githooks
+
+# Branche protegee (reglage Branche principale)
+BRANCHE_PRINCIPALE='main'
 
 # Git fournit une ligne par reference envoyee : ref locale, sha local, ref distante, sha distant
 while read -r local_ref local_sha remote_ref remote_sha; do
-  # Seule la branche main est protegee ; les etiquettes v* et les autres branches passent
-  if [ "$remote_ref" = "refs/heads/main" ]; then
-    echo "pre-push : envoi direct vers main refusé. Pousser une branche et ouvrir une PR." >&2
+  # Seule la branche principale est protegee ; les etiquettes et les autres branches passent
+  if [ "$remote_ref" = "refs/heads/$BRANCHE_PRINCIPALE" ]; then
+    echo "pre-push : envoi direct vers $BRANCHE_PRINCIPALE refuse. Pousser une branche et ouvrir une PR." >&2
     exit 1
   fi
 done

@@ -1,6 +1,18 @@
 #!/bin/sh
-# Verifie le message de commit (regles de CLAUDE.md, section Workflow).
+# Verifie le message de commit (WORKFLOW.md, reglages Commits et Attribution).
 # Activation, une fois par clone : git config core.hooksPath .githooks
+
+# --- Reglages du projet -------------------------------------------------------
+# Types de commit acceptes (expression reguliere etendue)
+TYPES='test|feat|fix|docs|chore'
+# Longueur maximale du sujet
+MAX_SUJET=72
+# Noms d'IA refuses dans le message (insensible a la casse) ; vide pour autoriser toute mention.
+# Les chemins de fichiers (contenant / ou finissant par .md, .json, .toml, .yml) restent permis.
+NOMS_IA='claude|anthropic|codex|openai|chatgpt|copilot|gemini'
+# 1 pour refuser les lignes Co-Authored-By, 0 pour les autoriser
+REFUSER_COAUTEUR=1
+# -----------------------------------------------------------------------------
 
 # Fichier du message, fourni par Git
 msg_file="$1"
@@ -17,24 +29,31 @@ esac
 # Refus avec explication
 fail() {
   echo "commit-msg : $1" >&2
-  echo "Format attendu : type(zone): sujet  (types : test, feat, fix, docs, chore)" >&2
+  echo "Format attendu : type(zone): sujet  (types : $TYPES)" >&2
   exit 1
 }
 
 # Format type(zone): sujet, zone facultative
-printf '%s\n' "$subject" | grep -Eq '^(test|feat|fix|docs|chore)(\([a-z0-9-]+\))?: [^ ]' \
-  || fail "sujet mal forme : « $subject »"
+printf '%s\n' "$subject" | grep -Eq "^($TYPES)(\([a-z0-9-]+\))?: [^ ]" \
+  || fail "sujet mal forme : '$subject'"
 
 # Longueur du sujet (caracteres, pas octets)
 len=$(printf '%s' "$subject" | wc -m | tr -d ' ')
-[ "$len" -le 72 ] || fail "sujet de $len caracteres (72 au plus)"
+[ "$len" -le "$MAX_SUJET" ] || fail "sujet de $len caracteres ($MAX_SUJET au plus)"
 
 # Ligne vide entre le sujet et le corps
 second=$(printf '%s\n' "$msg" | sed -n '2p')
 [ -z "$second" ] || fail "laisser une ligne vide apres le sujet"
 
-# Aucune attribution : l'utilisateur est le seul auteur (CLAUDE.md, le nom du fichier reste permis)
-printf '%s\n' "$msg" | grep -qi 'co-authored-by' && fail "ligne Co-Authored-By interdite"
-printf '%s\n' "$msg" | sed 's/CLAUDE\.md//g' | grep -qi 'claude' && fail "mention de Claude interdite"
+# Attribution : l'humain est le seul auteur (WORKFLOW.md, reglage Attribution)
+if [ "$REFUSER_COAUTEUR" = 1 ]; then
+  printf '%s\n' "$msg" | grep -qi 'co-authored-by' && fail "ligne Co-Authored-By interdite"
+fi
+if [ -n "$NOMS_IA" ]; then
+  # Retire les chemins de fichiers avant de chercher les noms
+  sans_chemins=$(printf '%s\n' "$msg" | sed -E 's#[^ ]*(/|\.(md|json|toml|ya?ml))[^ ]*##g')
+  nom=$(printf '%s\n' "$sans_chemins" | grep -Eoi "$NOMS_IA" | head -n 1)
+  [ -z "$nom" ] || fail "mention d'une IA interdite : $nom"
+fi
 
 exit 0

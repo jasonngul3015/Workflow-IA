@@ -2,6 +2,11 @@
 # regulieres (.NET). L'exemple vise un backend Java en couches (src/main/java/com/example/app) et un frontend
 # TypeScript : remplacer chemins et motifs par ceux du projet, retirer ce qui ne s'applique pas.
 @{
+    # Conventions (facultatives, valeurs par defaut ci-dessous) : branche principale et types de commit
+    MainBranch        = 'main'
+    TestCommitPattern = '^test(\(|:)'
+    CodeCommitPattern = '^(feat|fix)(\(|:)'
+
     # Fichiers de test : jamais modifies dans un commit feat ou fix
     TestPatterns = @(
         '^backend/src/(test|integration-test)/'

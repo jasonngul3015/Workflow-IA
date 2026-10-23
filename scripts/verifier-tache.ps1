@@ -1,4 +1,4 @@
-# Verifie les regles mecaniques d'une tache (/tache) sur la branche courante.
+# Verifie les regles mecaniques d'une tache (docs/workflow/tache.md) sur la branche courante.
 # Usage : ./scripts/verifier-tache.ps1 [-Base origin/main] [-Config scripts/verifier-tache.config.psd1]
 # Sortie 1 si une regle est violee ; les points « a valider » sont affiches sans bloquer.
 # Ce qui depend du projet (chemins, motifs) est dans le fichier de configuration.
@@ -17,6 +17,10 @@ Set-Location $root
 # Reglages du projet
 if (-not (Test-Path $Config)) { Write-Host "Configuration introuvable : $Config"; exit 2 }
 $cfg = Import-PowerShellDataFile $Config
+# Conventions facultatives dans la configuration ; valeurs par defaut sinon
+$mainBranch = if ($cfg.MainBranch) { $cfg.MainBranch } else { 'main' }
+$testCommitPattern = if ($cfg.TestCommitPattern) { $cfg.TestCommitPattern } else { '^test(\(|:)' }
+$codeCommitPattern = if ($cfg.CodeCommitPattern) { $cfg.CodeCommitPattern } else { '^(feat|fix)(\(|:)' }
 
 # Regles violees (bloquantes) et points a valider (informatifs)
 $failures = New-Object System.Collections.Generic.List[string]
@@ -59,8 +63,8 @@ foreach ($line in $commits) {
     $hash = $line.Substring(0, 40)
     $subject = $line.Substring(41)
     $files = @(& git diff-tree --no-commit-id --name-only -r $hash)
-    if ($subject -match '^test(\(|:)') { $seenTestCommit = $true; continue }
-    if ($subject -match '^(feat|fix)(\(|:)') {
+    if ($subject -match $testCommitPattern) { $seenTestCommit = $true; continue }
+    if ($subject -match $codeCommitPattern) {
         foreach ($f in $files) {
             if (Test-IsTestFile $f) { $failures.Add("Test modifie dans un commit de code : $f ($subject)") }
         }
@@ -131,7 +135,7 @@ if ($cfg.TodoFile -and $commits.Count -gt 0 -and -not ($changed -contains $cfg.T
 }
 $branch = (& git rev-parse --abbrev-ref HEAD).Trim()
 $auditName = ($branch -replace '/', '-') + '.md'
-if ($branch -ne 'HEAD' -and $branch -ne 'main' -and -not (Test-Path "$($cfg.AuditDir)/*-$auditName")) {
+if ($branch -ne 'HEAD' -and $branch -ne $mainBranch -and -not (Test-Path "$($cfg.AuditDir)/*-$auditName")) {
     $notices.Add("Audit absent : $($cfg.AuditDir)/AAAA-MM-JJ-$auditName")
 }
 
