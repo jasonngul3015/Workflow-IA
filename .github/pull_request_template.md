@@ -1,11 +1,17 @@
 ## Fiche de tâche
 
 <!-- Niveau (trivial, standard, sensible), comportements attendus (situation -> résultat), hors sujet,
-     parallélisation (tâches parallélisables, agents utilisés). Lien vers la case de la liste des choses à faire. -->
+     parallélisation (tâches parallélisables, participants). Lien vers la case de la liste des choses à faire. -->
 
 ## Stack
 
 <!-- « Inchangée », ou la présentation validée (besoin, proposition, alternatives, retour arrière). -->
+
+## Suivi et revue
+
+<!-- Si chantier : lien vers chantier.md et taches/Txxx.md dans le dernier suivi sauvegardé.
+     Rapporter les décisions, la base et le SHA relus, les défauts corrigés, les vérifications et leurs limites.
+     Garder les identités et noms des IA dans le suivi local, sans attribution dans cette PR. -->
 
 ## Tests écrits d'abord
 
@@ -27,14 +33,15 @@
 
 ## Terminé ?
 
-- [ ] Fiche validée avant le code (commit `test(...)` en premier ; algorithmes validés aussi si tâche sensible)
+- [ ] Fiche validée avant le code (commit `test(...)` en premier ; algorithmes validés aussi si tâche sensible ; documentation seule : vérifications adaptées et éléments sans objet expliqués)
 - [ ] `./scripts/verifier-tache.ps1` sans échec, chaque « à valider » traité
 - [ ] Le code suit l'algorithme (commentaires `// Algorithme :` identiques à la section ci-dessus)
 - [ ] Les tests mordent (une casse volontaire les fait échouer)
 - [ ] Suite de tests complète et build passent
 - [ ] Tests d'intégration lancés si la base change, de bout en bout si un parcours change
 - [ ] Contrainte en base si règle sensible ; entrée d'audit + test si action sensible
-- [ ] Documentation technique à jour, décision dans `CLAUDE.md` le cas échéant
+- [ ] Documentation technique à jour, décision validée dans `WORKFLOW.md` le cas échéant
 - [ ] Case cochée dans la liste des choses à faire
-- [ ] `/code-review` passé (et `/security-review` si tâche sensible)
+- [ ] Revue effectuée selon `docs/workflow/duo.md` (sécurité aussi si sensible), base et SHA relus indiqués
 - [ ] Audit écrit
+- [ ] Si chantier : fiche locale à jour, limites et prochaine action explicites, index synchronisé
