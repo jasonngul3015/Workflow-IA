@@ -1,0 +1,13 @@
+# Reglages Codex du projet (WORKFLOW.md, reglage « Autorisations des outils »).
+# Charges seulement si le projet est marque de confiance dans Codex.
+# Le dossier de suivi d'un chantier s'ajoute au lancement :
+#   codex -c 'sandbox_workspace_write.writable_roots=["<dossier de suivi>"]'
+
+# Ecriture limitee au dossier de travail ; .git y reste en lecture seule (voir rules/projet.rules)
+sandbox_mode = "workspace-write"
+# Demander seulement pour ce qui sort du bac a sable et qu'aucune regle n'autorise
+approval_policy = "on-request"
+
+[sandbox_workspace_write]
+# Ni push, ni gh, ni Docker : l'IA principale pousse, cree la PR et lance les tests qui exigent reseau ou Docker
+network_access = false

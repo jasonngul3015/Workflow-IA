@@ -1,0 +1,50 @@
+# Commandes autorisees ou interdites a Codex dans le projet (WORKFLOW.md, reglage « Autorisations des outils »).
+# allow : sans clic et hors bac a sable (git doit ecrire dans .git, en lecture seule dans le bac a sable).
+# forbidden : refuse sans clic. Plusieurs regles : la plus stricte l'emporte (forbidden > prompt > allow).
+# Les regles comparent le debut de la commande : un drapeau place plus loin leur echappe ; les hooks et la CI restent
+# la vraie protection. Verifier : codex execpolicy check --pretty --rules .codex/rules/projet.rules -- <commande>
+
+# Commits : fichiers ajoutes un par un, message ecrit dans un fichier (WORKFLOW.md, Commits)
+prefix_rule(
+    pattern = ["git", "add"],
+    decision = "allow",
+    match = ["git add WORKFLOW.md"],
+)
+prefix_rule(
+    pattern = ["git", "add", ["-A", ".", "--all"]],
+    decision = "forbidden",
+    justification = "Ajouter les fichiers un par un (WORKFLOW.md, Commits)",
+    match = ["git add -A", "git add ."],
+)
+prefix_rule(
+    pattern = ["git", "commit", "-F"],
+    decision = "allow",
+    match = ["git commit -F message.txt"],
+    not_match = ["git commit -m sujet"],
+)
+prefix_rule(
+    pattern = ["git", "commit", ["--no-verify", "-n"]],
+    decision = "forbidden",
+    justification = "Les hooks ne se contournent jamais",
+)
+
+# Ce que seule l'IA principale ou le developpeur fait
+prefix_rule(
+    pattern = ["git", ["push", "merge", "rebase", "reset", "tag", "config", "-c"]],
+    decision = "forbidden",
+    justification = "L'IA principale pousse ; fusion, reecriture, etiquette et hooks sur demande du developpeur",
+    match = ["git push origin feat/x", "git -c core.hooksPath=/dev/null commit"],
+)
+prefix_rule(
+    pattern = ["gh"],
+    decision = "forbidden",
+    justification = "PR et CI : l'IA principale s'en charge",
+)
+
+# Tests unitaires du projet : a remplacer par ses commandes (WORKFLOW.md, Commandes). Exemple pour Maven :
+# prefix_rule(
+#     pattern = ["mvn", "test"],
+#     decision = "allow",
+#     match = ["mvn test -Dtest=XTest"],
+#     not_match = ["mvn install"],
+# )
