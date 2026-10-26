@@ -47,8 +47,18 @@ corrections.
 
 L'IA qui crée le chantier est l'**IA principale** et la seule à parler au développeur ; l'autre est l'**IA
 secondaire**. Chacune code sa tâche dans son worktree, en même temps. Elles communiquent par fichiers texte dont
-chacun n'a qu'un seul rédacteur, et le développeur réveille la session qui doit lire. Tout l'état est conservé dans
-un dossier de suivi : une session neuve reprend sans l'historique du chat.
+chacun n'a qu'un seul rédacteur et s'attendent l'une l'autre avec un script (`scripts/attendre-message.ps1`) ; le
+développeur ne réveille qu'une session arrêtée. Lancées en **session autonome**, elles ne demandent un clic que
+pour ce qui reste réservé au développeur (fusion, branche principale, étiquette…). Une IA qui sait lancer des
+sous-agents peut confier une tâche entière à une **aide**, avec sa fiche, son worktree et sa PR. Tout l'état est
+conservé dans un dossier de suivi : une session neuve reprend sans l'historique du chat.
+
+## Suivi local des tâches
+
+Chaque tâche, seule ou dans un chantier, a une fiche dans `.suivi/taches/` (dossier de la machine, ignoré par
+git). `./scripts/suivi.ps1` en génère `.suivi/index.md` : qui travaille sur quoi, sur quelle branche, dans quel
+worktree, et la prochaine action. Toute IA le lance et le lit avant d'agir, et ne touche pas à une tâche en cours
+d'une autre.
 
 ## Contenu
 
@@ -63,9 +73,18 @@ un dossier de suivi : une session neuve reprend sans l'historique du chat.
 | [docs/workflow/modeles/](docs/workflow/modeles/) | Modèles : chantier, fiche de tâche, messages, audit |
 | [.githooks/](.githooks/) | Format des commits, attribution, protection de la branche principale (réglages en tête) |
 | [scripts/verifier-tache.ps1](scripts/verifier-tache.ps1) | Contrôles mécaniques, réglés par [verifier-tache.config.psd1](scripts/verifier-tache.config.psd1) (exemple Java/TypeScript) |
+| [scripts/suivi.ps1](scripts/suivi.ps1) | Index du suivi local des tâches ; test : [suivi.test.ps1](scripts/suivi.test.ps1) |
+| [scripts/attendre-message.ps1](scripts/attendre-message.ps1) | Attente d'un message de l'autre IA d'un chantier |
 | [.github/pull_request_template.md](.github/pull_request_template.md) | Modèle de PR |
-| [adaptateurs/](adaptateurs/) | Branchement des outils : Claude Code, outils lisant `AGENTS.md` ; à copier à la racine du projet |
+| [adaptateurs/](adaptateurs/) | Branchement des outils : Claude Code, Codex, outils lisant `AGENTS.md` ; à copier à la racine du projet |
 | [docs/projet/](docs/projet/) | Suivi propre à ce dépôt (à ne pas copier) |
 
 Prérequis : Git ; pour le cycle complet, une forge avec CLI (GitHub et `gh` par défaut) et PowerShell (5.1 ou
-`pwsh`) pour le vérificateur. Les garde-fous de chaque outil restent applicables.
+`pwsh`) pour le vérificateur et les scripts. Les garde-fous de chaque outil restent applicables.
+
+**Défaut connu** : sous Windows, quand `scripts/suivi.ps1` est lancé sans `-Dossier` par un autre shell (Git Bash,
+cmd : `powershell -File`) dans un projet dont le chemin contient des lettres accentuées, PowerShell 5.1 décode mal
+la sortie de `git` (« Système » devient « Syst├¿me ») : le script crée alors un dossier `.suivi/` parasite, vide,
+sous ce chemin déformé, et y écrit un index vide. Lancé depuis PowerShell, il trouve le bon dossier. En attendant
+le correctif, depuis un autre shell, lui donner le dossier :
+`./scripts/suivi.ps1 -Dossier "<chemin absolu du checkout principal>\.suivi"`.

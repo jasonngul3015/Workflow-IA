@@ -11,7 +11,8 @@ ce que **toi** tu as à faire.
 - Tu peux leur donner des surnoms dans `WORKFLOW.md` (réglage **Rôles d'un chantier**) ; dans ce dépôt :
   Patrick et Fanny.
 - Les deux codent **en même temps**, chacune sur sa tâche, dans son propre worktree.
-- Elles s'écrivent dans des fichiers texte ; **tu les réveilles** quand l'une a écrit à l'autre.
+- Elles s'écrivent dans des fichiers texte et **s'attendent toutes seules** (script d'attente) ; tu ne les
+  réveilles que si l'une s'est arrêtée.
 - Rien n'est fusionné, poussé sur la branche principale ni étiqueté sans ta demande explicite.
 
 ## Quand utiliser un chantier
@@ -28,6 +29,24 @@ ce que **toi** tu as à faire.
 2. Les deux outils sont ouverts sur le **même dépôt, sur la même machine** : l'IA secondaire doit pouvoir lire et
    écrire le dossier de suivi de la principale.
 3. Les hooks sont activés : `git config core.hooksPath .githooks`.
+4. Chaque outil est lancé en **session autonome**, sinon il te demandera un clic à chaque commande (réglage
+   **Autorisations des outils** de `WORKFLOW.md`). Pour Claude Code :
+
+   ```text
+   claude --settings .claude/settings.autonome.json --add-dir "<dossier de suivi>"
+   ```
+
+   Pour Codex (projet marqué de confiance dans Codex, pour qu'il lise `.codex/`) :
+
+   ```text
+   codex -c 'sandbox_workspace_write.writable_roots=["<dossier de suivi>"]'
+   ```
+
+   L'IA principale te donne le chemin du dossier de suivi et celui du worktree de l'IA secondaire ; lance
+   l'IA secondaire depuis ce worktree. Codex n'a ni réseau ni Docker : l'IA principale pousse ses branches,
+   crée ses PR et lance pour lui les tests d'intégration et de bout en bout.
+5. Les IA qui savent lancer des aides dans un worktree séparé (Claude Code) peuvent confier à chacune une tâche
+   entière : jusqu'à 5 tâches en même temps sur la machine (3 au premier chantier). Les aides ne te parlent pas.
 
 ## Démarrer
 
@@ -52,9 +71,16 @@ Lis WORKFLOW.md, docs/workflow/duo.md, chantier.md et de-principale.txt, puis tr
 
 Elle prépare ses fiches et termine par `Rapport enregistré dans le suivi. À réveiller : principale.`
 
-## Le geste à répéter
+## Pendant le chantier
 
-Chaque session finit son tour par une ligne :
+Les deux sessions s'attendent l'une l'autre : quand l'une écrit, l'autre repart dans la minute. Toi, tu réponds
+seulement à l'IA principale quand elle te présente une décision. Pour lui parler pendant qu'elle attend,
+interromps-la (Échap dans Claude Code) : elle reprendra l'attente après t'avoir répondu.
+
+## Si une session s'arrête
+
+Une session s'arrête quand elle attend ta décision, après 2 heures sans message de l'autre, ou en cas d'erreur.
+Elle finit alors son tour par une ligne :
 
 ```text
 À réveiller : principale | secondaire | personne
@@ -67,7 +93,8 @@ Reprends ton rôle dans <chemin absolu du dossier de suivi> : lis les nouveaux m
 ```
 
 Si les deux sont à réveiller, réveille-les toutes les deux : elles travaillent en parallèle sans se gêner.
-« personne » signifie que la décision t'attend, chez l'IA principale.
+« personne » signifie que la décision t'attend, chez l'IA principale. Quand tout est fini, l'IA principale écrit
+`FIN-CHANTIER` et les deux sessions s'arrêtent.
 
 ## Tes décisions (toujours auprès de l'IA principale)
 

@@ -9,7 +9,9 @@ Un chantier sert à faire avancer des tâches en parallèle, ou à obtenir une r
 2. Créer le dossier de suivi à partir des [modèles](modeles/chantier.md) ; inscrire rôles, outils et chemins.
    Ne pas recréer un chantier existant : appliquer la reprise.
 3. Découper en tâches selon **Taille d'une tâche**. Une fiche `taches/Txxx.md` et une ligne d'index par tâche,
-   documentation du chantier comprise. Une tâche annulée garde son ID.
+   documentation du chantier comprise. Une tâche annulée garde son ID. Dans le **Suivi local**, une fiche courte
+   par tâche (résumé, lien vers `taches/Txxx.md`), tenue à jour par l'IA principale
+   ([tache.md](tache.md#suivi-local-toutes-les-tâches)).
 4. Pour chaque tâche : niveau, exemples, hors sujet, ensemble d'écriture, lectures critiques, ressources,
    dépendances, responsable, branche et worktree.
 5. Classer : **socle** (prérequis commun), **parallèle** (écritures disjointes des écritures et lectures critiques
@@ -42,12 +44,37 @@ Les tâches socle sont livrées avant celles qui en dépendent ; les séquentiel
 - vérifie les fichiers touchés par une tâche arrivée à un arrêt, par rapport à son SHA de départ :
   `git -C <worktree> diff --name-only <sha-depart>`, `git -C <worktree> status --short` ; un dépassement de
   l'ensemble d'écriture suspend la tâche et déclenche un arbitrage humain, sans effacer les changements ;
-- met à jour l'index et les réservations, attribue ou remet en file les jetons, organise les revues croisées ;
+- met à jour l'index, les fiches courtes du **Suivi local** (puis `./scripts/suivi.ps1`) et les réservations,
+  attribue ou remet en file les jetons, organise les revues croisées ;
 - ne réattribue pas une tâche avant arrêt confirmé de l'ancien responsable (une session silencieuse n'est pas
   réputée arrêtée).
 
 Un rapport tient en quelques lignes : étape, résultat, SHA, blocage, prochaine action. Le détail (commandes,
 preuves, fichiers) est dans la fiche.
+
+## Aides par tâche
+
+Une IA dont l'outil sait lancer des sous-agents dans un worktree séparé (réglage **Aides par tâche**) peut confier
+une tâche **entière** à une aide, pour faire avancer en même temps plusieurs de ses tâches parallèles.
+
+- **Une aide = une tâche** de l'index, avec sa fiche `taches/Txxx.md`, son worktree, sa branche et sa PR. Jamais un
+  morceau de tâche, jamais deux aides sur la même tâche.
+- **L'aide suit [tache.md](tache.md)**, section « Participant d'un chantier ». Elle tient sa fiche à jour à chaque
+  arrêt (état, preuves, prochaine action) : si la session qui l'a lancée s'arrête, la tâche se reprend depuis la
+  fiche, le worktree et la branche, par une autre aide ou une session normale.
+- **L'IA qui lance l'aide en répond** : elle vérifie son ensemble d'écriture à chaque arrêt, relaie ses demandes
+  et lui transmet les réponses. Une aide ne parle ni au développeur ni à l'autre IA, n'écrit dans aucun fichier
+  de messages et ne lance pas d'aide à son tour.
+- **Les arrêts remontent comme les autres** : l'aide de l'IA principale lui rend son arrêt ; celle de l'IA
+  secondaire le rend à l'IA secondaire, qui l'inscrit dans `de-secondaire.txt`. Seule l'IA principale consulte
+  le développeur ; une réponse n'est relayée à l'aide qu'une fois consignée (`Vxxx`).
+- **Réservations et jetons** : demandés à l'IA principale comme pour toute tâche ; une aide de l'IA secondaire
+  passe par celle-ci.
+- **Revue croisée** : une tâche faite par une aide de l'IA principale est relue par l'IA secondaire, et
+  inversement ; jamais par une aide de la même IA.
+- **Combien** : l'index note le responsable (`principale/aide`, `secondaire/aide`). Au plus 5 tâches en cours en
+  même temps sur la machine, IA et aides comprises (3 au premier chantier) : chaque tâche compile, teste et
+  attend une validation.
 
 ## Ressources critiques
 
@@ -89,3 +116,5 @@ dans l'index. Aucun nettoyage de worktree ne supprime du travail non livré ou l
 Chaque tâche a son audit ; l'IA principale écrit l'audit du chantier `<audits>/AAAA-MM-JJ-chantier-<nom>.md`
 ([modèle](modeles/audit.md), section Coordination). Les améliorations de règles restent des propositions sans
 accord du développeur. Sauvegarder le suivi dans la branche de documentation ; ne pas effacer messages ni fiches.
+Pour finir, l'IA principale écrit un message `FIN-CHANTIER` : l'IA secondaire sort de son attente
+([duo.md](duo.md#attente)).

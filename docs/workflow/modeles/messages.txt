@@ -4,7 +4,7 @@ Seul rédacteur : le rôle nommé ci-dessus. Ajouter à la fin uniquement ; ne j
 Règles : docs/workflow/duo.md, section « Messages ».
 
 FORMAT (ID P001… pour l'IA principale, S001… pour l'IA secondaire) :
-<ID> | <date avec fuseau> | <Txxx ou CHANTIER> | <DEMANDE / QUESTION / RESULTAT / BLOQUEE / REFUSEE / VALIDATION> | re <ID ou aucun> | SHA <SHA ou sans objet>
+<ID> | <date avec fuseau> | <Txxx ou CHANTIER> | <DEMANDE / QUESTION / RESULTAT / BLOQUEE / REFUSEE / VALIDATION / FIN-CHANTIER> | re <ID ou aucun> | SHA <SHA ou sans objet>
 <contenu court ; détails dans la fiche ; validation Vxxx si pertinente ; prochaine action>
 FIN <ID>
 
