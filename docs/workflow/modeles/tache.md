@@ -1,5 +1,22 @@
 # T001 : <objectif>
 
+<!-- Fiche d'une tâche, dans un chantier (taches/Txxx.md du dossier du chantier) ou seule (Suivi local :
+     taches/AAAA-MM-JJ-<branche avec / remplacé par ->.md, ex. feat/invitations -> 2026-10-20-feat-invitations.md ;
+     titre sans identifiant). Hors chantier, les lignes marquées « chantier » sont sans objet : les supprimer.
+     scripts/suivi.ps1 lit la section Résumé (une ligne « - Clé : valeur » par clé) pour générer l'index :
+     garder ces clés et ce format, puis relancer le script après chaque mise à jour. Enregistrer en UTF-8
+     (outil d'édition, ou Set-Content -Encoding utf8 ; jamais le codage par défaut de PowerShell 5.1). -->
+
+## Résumé
+
+- État : à cadrer (chantier) | à valider | prête (chantier) | en cours | bloquée | à relire | PR prête | fusionnée | annulée
+- Étape : fiche | tests rouges | algorithme | code | vérifications | revue | CI | audit | fusion
+- Branche : <branche>
+- Worktree : <chemin ou aucun>
+- Responsable : <outil et session>
+- Prochaine action : <action précise>
+- Mise à jour : <AAAA-MM-JJ HH:MM avec fuseau>
+
 ## Fiche et périmètre
 
 - Niveau : trivial (déclaré par l'utilisateur) | standard | sensible ; raison : <...>
@@ -7,14 +24,14 @@
 - Hors sujet : <...>
 - Stack : inchangée | <présentation et validation liées>
 - Parallélisation : <n> tâches indépendantes ; participants : <1 ou 2 et rôle>
-- Phase : socle | parallèle | séquentielle ; dépendances : <IDs et conditions de livraison>
-- Responsable : IA principale | IA secondaire ; outil et session : <...>
+- Phase (chantier) : socle | parallèle | séquentielle ; dépendances : <IDs et conditions de livraison>
+- Responsable : IA principale | IA secondaire | IA seule ; outil et session : <...>
 - Branche / worktree : <branche> / <chemin absolu>
 - Base et SHA de départ : <référence> / <SHA>
 - Écritures autorisées (code) : <fichiers/dossiers>
-- Écritures autorisées (suivi canonique) : <cette fiche et son fichier de messages>
-- Lectures critiques : <fichiers et versions>
-- Ressources / jetons : <attribution par l'IA principale ou aucun>
+- Écritures autorisées (suivi) : <cette fiche et, en chantier, son fichier de messages ; l'index est généré>
+- Lectures critiques (chantier) : <fichiers et versions>
+- Ressources / jetons (chantier) : <attribution par l'IA principale ou aucun>
 
 | Situation | Résultat attendu / erreur | Test ou vérification documentaire |
 | --- | --- | --- |
@@ -30,16 +47,15 @@
 
 ## État durable
 
-- État : à cadrer | à valider | prête | en cours | bloquée | à relire | PR prête | fusionnée | annulée
-- Étape : fiche | tests rouges | algorithme | code | vérifications | revue | CI | audit | fusion
-- Dernière mise à jour : <date avec fuseau>
-- Dernier message de l'autre rôle traité : <P... / S... ou aucun>
+<!-- État, étape, prochaine action et date de mise à jour : seulement dans la section Résumé (une seule source). -->
+
+- Dernier message de l'autre rôle traité (chantier) : <P... / S... ou aucun>
 - Réalisé : <faits>
 - Reste à faire : <actions>
 - Modifications non commitées : <liste ou aucune, à confirmer par git status>
 - Dernier commit : <SHA ou aucun> ; PR : <lien ou aucune>
 - Blocages / risques : <faits ou aucun>
-- Prochaine action : <action précise> ; responsable de cette action : <rôle>
+- Responsable de la prochaine action : <rôle>
 
 ## Algorithmes et décisions
 

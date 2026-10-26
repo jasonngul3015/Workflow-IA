@@ -29,7 +29,7 @@ Créé : <date avec fuseau> ; dernière mise à jour : <date avec fuseau>
 
 | ID | Objectif | Niveau | Phase | Responsable | État / étape | Dépend de | Fiche |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T001 | <comportement> | standard | socle / parallèle / séquentielle | principale / secondaire | à cadrer | aucune | [T001](taches/T001.md) |
+| T001 | <comportement> | standard | socle / parallèle / séquentielle | principale / secondaire (/aide) | à cadrer | aucune | [T001](taches/T001.md) |
 
 ## Validations et décisions humaines
 

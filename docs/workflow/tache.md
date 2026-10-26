@@ -24,8 +24,37 @@ S'arrêter, expliquer en quelques lignes et attendre une réponse quand :
 - la fiche se révèle ambiguë ou la tâche dépasse nettement la **Taille d'une tâche** ;
 - le **Vérificateur** ou la CI restent rouges après deux corrections.
 
+## Suivi local (toutes les tâches)
+
+Chaque tâche, chantier ou non, a une ligne dans l'index et une fiche dans le **Suivi local** : un dossier de la
+machine, ignoré par git, que toutes les sessions lisent et écrivent par son chemin absolu (jamais une copie dans
+un worktree). Il permet à n'importe quelle IA de savoir qui travaille sur quoi, où, et ce qui reste à faire.
+
+- `taches/AAAA-MM-JJ-<branche avec / remplacé par ->.md` : une fiche par tâche selon [le modèle](modeles/tache.md),
+  avec sa section « Résumé » en tête (état, étape, branche, worktree, responsable avec outil et session,
+  prochaine action, mise à jour). Seule la session responsable de la tâche écrit sa fiche.
+- `index.md` : **généré** par `scripts/suivi.ps1` à partir des résumés (tâches en cours d'abord), jamais modifié à
+  la main ; une génération concurrente est sans danger, la suivante corrige tout.
+- Chantier : chaque tâche y garde sa fiche `taches/Txxx.md` du dossier du chantier ; l'IA principale crée aussi
+  dans le **Suivi local** une fiche courte par tâche (résumé et lien vers `taches/Txxx.md`) et la tient à jour.
+- À chaque étape (fiche présentée, fiche validée, tests rouges, code vert, revue, PR, CI, audit, arrêt imprévu,
+  fusion ou abandon) : mettre à jour la fiche (« Résumé », « État durable », décisions, preuves), puis lancer
+  `./scripts/suivi.ps1`. États : à valider, en cours, bloquée, à relire, PR prête, fusionnée, annulée.
+- Dossier absent (nouveau clone, autre machine) : `./scripts/suivi.ps1` le crée avec un index vide. Le dossier
+  n'existe que sur cette machine : ne jamais lancer `git clean -x` (ou `-X`) dans le checkout principal.
+- Depuis un worktree, y écrire par son chemin absolu : lancer la session avec `--add-dir "<Suivi local>"`
+  (Claude Code, session normale comme autonome) ou `writable_roots` (Codex).
+- Fiches enregistrées en UTF-8 (outil d'édition, ou `Set-Content -Encoding utf8`).
+- Session en lecture seule (sous-agent, relecture, bac à sable sans accès) : lire `index.md` et les fiches sans
+  lancer le script ni rien écrire.
+- Jamais commité, sans secret. L'audit, lui, reste commité dans la PR.
+
 ## 0. Préparer
 
+- Lancer `./scripts/suivi.ps1`, lire l'index du **Suivi local** et les fiches en cours avant toute action. Ne
+  jamais changer de branche, ni modifier un worktree ou des fichiers qu'une autre tâche en cours utilise : en cas
+  de doute, demander.
+  Reprendre une tâche existante plutôt que la recommencer (vérifier son état réel : `git status`, branche, PR).
 - `git status` : préserver les changements en cours ; s'ils gênent, demander un arbitrage sans les effacer.
 - Hors chantier : partir de la **Branche principale** à jour et créer une branche selon **Branches de tâche**.
   Dans un chantier : utiliser uniquement le worktree et la branche attribués.
@@ -48,6 +77,9 @@ Dans la **Langue** du projet, sans code, courte :
 Tâche triviale : fiche en 3 lignes, parallélisation en fin de ligne (« 0 parallélisable, 1 participant »).
 Une valeur par défaut qui change (adresse, réglage, droit) : ajouter aux exemples les entrées invalides qui
 retomberaient en silence sur cette valeur.
+
+Avant de présenter la fiche, l'écrire dans le **Suivi local** (état « à valider ») et régénérer l'index. Après la
+réponse, y consigner la validation (date, réponse exacte, portée) et passer à « en cours ».
 
 Attendre la validation. C'est le seul arrêt avant la fusion d'une tâche standard : mieux vaut une question de plus ici.
 
@@ -145,6 +177,10 @@ Présenter en un message : lien de la PR, CI, résumé en clair, algorithmes, ce
 essayer dans l'application. Fusionner selon **Fusion** et **Forge** seulement sur demande explicite ; jamais
 d'étiquette de version sans demande.
 
+Le **Suivi local** passe à « PR prête » avant le message, puis à « fusionnée » ou « annulée » après la décision ;
+la fiche est gardée. Supprimer ensuite le worktree de la tâche seulement si son travail est livré (branche
+fusionnée, `git status` propre) ; sinon le garder et le noter dans la fiche.
+
 ## Participant d'un chantier
 
 Lire aussi [chantier.md](chantier.md) et [duo.md](duo.md). Différences :
@@ -152,7 +188,8 @@ Lire aussi [chantier.md](chantier.md) et [duo.md](duo.md). Différences :
 - Travailler dans le worktree attribué, en parallèle de l'autre IA, sans attendre hors des arrêts.
 - Chaque arrêt de l'IA secondaire (fiche, algorithmes sensibles, imprévu, PR prête) est inscrit dans sa fiche puis
   signalé à l'IA principale dans `de-secondaire.txt`. L'IA principale seule présente les demandes au développeur.
-- Mettre à jour `taches/Txxx.md` à chaque arrêt (état, preuves, reste à faire, blocage, prochaine action).
+- Mettre à jour `taches/Txxx.md` à chaque arrêt (état, preuves, reste à faire, blocage, prochaine action) ; la
+  fiche courte de la tâche dans le **Suivi local** est tenue par l'IA principale.
 - Ne modifier que son ensemble d'écriture et ses propres fichiers de suivi ; règles communes, points d'entrée et
   liste des choses à faire sont réservés à l'IA principale.
 - Ressource unique (ports fixes, environnement partagé) : uniquement avec le jeton attribué, rendu juste après.
