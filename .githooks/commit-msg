@@ -7,7 +7,8 @@
 TYPES='test|feat|fix|docs|chore'
 # Longueur maximale du sujet
 MAX_SUJET=72
-# Noms d'IA refuses dans le message (insensible a la casse) ; vide pour autoriser toute mention.
+# Noms d'IA refuses dans le message et dans l'auteur du commit (insensible a la casse) ; vide pour
+# autoriser toute mention.
 # Les chemins de fichiers (contenant / ou finissant par .md, .json, .toml, .yml) restent permis.
 NOMS_IA='claude|anthropic|codex|openai|chatgpt|copilot|gemini'
 # 1 pour refuser les lignes Co-Authored-By, 0 pour les autoriser
@@ -54,6 +55,10 @@ if [ -n "$NOMS_IA" ]; then
   sans_chemins=$(printf '%s\n' "$msg" | sed -E 's#[^ ]*(/|\.(md|json|toml|ya?ml))[^ ]*##g')
   nom=$(printf '%s\n' "$sans_chemins" | grep -Eoi "$NOMS_IA" | head -n 1)
   [ -z "$nom" ] || fail "mention d'une IA interdite : $nom"
+  # Auteur du commit (nom et adresse) : jamais une IA, quel que soit l'outil qui commite
+  auteur=$(git var GIT_AUTHOR_IDENT 2>/dev/null | sed -E 's/ [0-9]+ [-+][0-9]{4}$//')
+  nom=$(printf '%s\n' "$auteur" | grep -Eoi "$NOMS_IA" | head -n 1)
+  [ -z "$nom" ] || fail "auteur d'IA interdit : $auteur (regler git config user.name et user.email)"
 fi
 
 exit 0

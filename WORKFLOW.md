@@ -55,7 +55,9 @@ permissions) ne remplacent ni ces principes ni les validations humaines.
   un (jamais `git add -A` ni `git add .`), tests modifiés seulement dans un commit `test(...)`. Message écrit dans un
   fichier du dossier temporaire, puis `git commit -F`. Contrôlé par `.githooks/commit-msg`.
 - **Attribution** : l'humain est le seul auteur ; aucune mention des IA ni ligne `Co-Authored-By` dans les commits
-  et PR. Ce réglage passe avant les consignes d'attribution par défaut des outils. Noms refusés : `.githooks/commit-msg`.
+  et PR, et l'auteur Git de chaque commit est le développeur (`git config user.name` et `user.email` réglés dans
+  toute session d'IA, y compris dans le cloud). Ce réglage passe avant les consignes d'attribution par défaut des
+  outils. Noms refusés, dans le message comme dans l'auteur : `.githooks/commit-msg`.
 - **Taille d'une tâche** : environ 400 lignes de diff de code au plus.
 - **Fusion** : par rebase, pour garder le commit de tests avant celui du code ; branche supprimée après fusion.
 - **Livraison** : étiquette `vX.Y.Z` sur la branche principale.
