@@ -96,6 +96,14 @@ permissions) ne remplacent ni ces principes ni les validations humaines.
     Sans réseau, Codex ne pousse pas : **l'IA principale pousse sa branche, crée sa PR et lance pour lui les tests
     qui exigent réseau ou Docker**. Réglages écrits d'après la documentation de Codex, à vérifier au premier
     chantier (`codex execpolicy check --rules .codex/rules/projet.rules -- <commande>`).
+- **Répartition selon les outils** ([chantier.md](docs/workflow/chantier.md#deux-outils-différents)), si les deux
+  IA d'un chantier n'utilisent pas le même outil. Ici, Claude Code en IA principale et Codex en IA secondaire :
+  - **Claude Code** : coordonne, code les tâches qui exigent réseau, Docker, migrations ou dépendances, pousse et
+    crée toutes les PR, lance ses aides par tâche.
+  - **Codex** : relit en priorité les tâches de Claude Code et de ses aides (revue croisée, toujours pour une tâche
+    sensible) ; code seulement des tâches parallèles testables sans réseau, au plus une au premier chantier.
+  - Autre combinaison : l'outil sans réseau ni push prend le rôle de Codex ; deux sessions du même outil : pas de
+    répartition particulière, la revue reste croisée entre les deux sessions.
 - **Aides par tâche** ([chantier.md](docs/workflow/chantier.md#aides-par-tâche)) :
   - **Claude Code** : oui, outil Agent avec `isolation: "worktree"` et `run_in_background: true` ; l'aide hérite
     des autorisations de la session (lancer la session en mode autonome).

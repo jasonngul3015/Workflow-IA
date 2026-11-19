@@ -17,7 +17,8 @@ Un chantier sert à faire avancer des tâches en parallèle, ou à obtenir une r
 5. Classer : **socle** (prérequis commun), **parallèle** (écritures disjointes des écritures et lectures critiques
    des autres, aucune dépendance), **séquentielle** (le reste). Répartir les tâches parallèles entre les deux IA
    pour qu'elles codent en même temps ; confier de préférence les plus longues à l'IA secondaire, l'IA principale
-   gardant du temps pour coordonner.
+   gardant du temps pour coordonner. Si les deux IA utilisent des outils différents, appliquer
+   **Deux outils différents**.
 6. Présenter le plan, l'ordre et la répartition. Attendre la validation et noter sa portée : elle ne vaut pas
    validation des fiches.
 
@@ -51,6 +52,24 @@ Les tâches socle sont livrées avant celles qui en dépendent ; les séquentiel
 
 Un rapport tient en quelques lignes : étape, résultat, SHA, blocage, prochaine action. Le détail (commandes,
 preuves, fichiers) est dans la fiche.
+
+## Deux outils différents
+
+Deux modèles différents n'ont pas les mêmes angles morts : leur premier atout est une **revue indépendante**. Leurs
+moyens diffèrent aussi (réseau, push, aides) : la répartition suit le réglage **Répartition selon les outils**.
+
+- **Revue croisée d'abord** : toute tâche sensible est relue par l'IA de l'autre outil ; une tâche standard l'est
+  dès que ce réviseur est disponible. Une revue ne demande ni push ni réseau : c'est le rôle qui coûte le moins à
+  l'outil le plus limité.
+- **Code selon les moyens** : une IA dont l'outil ne pousse pas ou n'a pas de réseau ne reçoit que des tâches
+  vérifiables par les tests sans réseau (tests unitaires, vérificateur), avec un ensemble d'écriture disjoint. Les
+  tâches qui exigent réseau, Docker, migrations ou dépendances nouvelles vont à l'IA qui dispose de ces moyens.
+- **Coût de relais compté** : chaque push, PR ou test fait par l'IA principale pour l'autre est noté dans la fiche
+  de la tâche. S'il dépasse le temps gagné, l'audit du chantier le signale et propose de réduire l'autre IA à la
+  revue.
+- **Premier chantier avec un nouvel outil** : vérifier d'abord ses permissions (commande indiquée dans
+  **Autorisations des outils**), lui confier au plus une tâche de code, et consigner dans l'audit ce qui a
+  fonctionné.
 
 ## Aides par tâche
 

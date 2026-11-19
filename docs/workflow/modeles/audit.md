@@ -32,3 +32,5 @@
 - Attentes : réservations, jetons, réveils, validations ; temps d'attente de chaque IA : <faits>
 - Dépassements d'ensemble d'écriture, reprises sans historique, divergences index/fiches/dépôt : <faits>
 - Gain réel du parallélisme par rapport à des tâches enchaînées : <estimation et base>
+- Deux outils différents : défauts trouvés par la revue croisée ; relais faits par l'IA principale (push, PR,
+  tests réseau) et leur coût ; répartition à garder ou à réduire à la revue : <faits et proposition>

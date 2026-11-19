@@ -39,6 +39,7 @@ Tous dans la section « Réglages du projet » de `WORKFLOW.md` :
 | Rôles d'un chantier | Surnoms facultatifs des IA principale et secondaire | Rien d'autre |
 | Attente entre IA | Script fourni, ou réveil par le développeur | Autorisations de l'outil (sinon un clic par relance) |
 | Autorisations des outils | Session normale seule, ou aussi une session autonome | Fichiers de permissions de chaque outil (`settings.autonome.json`, `.codex/`) |
+| Répartition selon les outils | Si deux outils différents : qui coordonne, qui relit, quelles tâches de code pour l'outil le plus limité | Rien d'autre |
 | Aides par tâche | Oui (outil qui lance des sous-agents dans un worktree séparé) ou non | Rien d'autre |
 | Commandes, couches, erreurs, zones sensibles, sections critiques | Propres au projet | Configuration du vérificateur |
 | Chemins | liste à faire, audits, suivi des chantiers | `TodoFile` et `AuditDir` du vérificateur |
